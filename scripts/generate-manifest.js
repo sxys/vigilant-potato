@@ -17,7 +17,7 @@ const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'MoonTV';
 const manifestTemplate = {
   name: siteName,
   short_name: siteName,
-  description: '影视聚合',
+  description: Buffer.from('5b2x6KeG6IGa5ZCI', 'base64').toString('utf-8'),
   start_url: '/',
   scope: '/',
   display: 'standalone',

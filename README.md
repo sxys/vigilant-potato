@@ -1,10 +1,10 @@
-# MoonTV
+# Media Dashboard
 
 <div align="center">
-  <img src="public/logo.png" alt="MoonTV Logo" width="120">
+  <img src="public/logo.png" alt="Logo" width="120">
 </div>
 
-> 🎬 **MoonTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、云端存储，让你可以随时随地畅享海量免费影视内容。
+> 🎬 **Media Dashboard** 是一个开箱即用的个人流媒体与播放面板。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、云端存储，让你可以随时随地管理与畅享您的流媒体内容。
 
 <div align="center">
 
@@ -73,7 +73,7 @@
 
 ### zeabur 一键部署
 
-点击下方按钮即可一键部署，自动配置 LunaTV + Kvrocks 数据库：
+点击下方按钮即可一键部署，自动配置 MediaApp + Kvrocks 数据库：
 
 [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/8MPTQU/deploy)
 
@@ -83,15 +83,15 @@
 - ✅ 持久化存储，数据永不丢失
 - ✅ 免费额度足够个人使用
 
-**⚠️ 重要提示**：部署完成后，需要在 Zeabur 中为 LunaTV 服务设置访问域名（Domain）才能在浏览器中访问。详见下方 [设置访问域名](#5-设置访问域名必须) 步骤。
+**⚠️ 重要提示**：部署完成后，需要在 Zeabur 中为 MediaApp 服务设置访问域名（Domain）才能在浏览器中访问。详见下方 [设置访问域名](#5-设置访问域名必须) 步骤。
 
 ### Kvrocks 存储（推荐）
 
 ```yml
 services:
-  moontv-core:
-    image: ghcr.io/moontechlab/lunatv:latest
-    container_name: moontv-core
+  app-core:
+    image: media-dashboard:latest
+    container_name: app-core
     restart: on-failure
     ports:
       - '3000:3000'
@@ -99,21 +99,21 @@ services:
       - USERNAME=admin
       - PASSWORD=admin_password
       - NEXT_PUBLIC_STORAGE_TYPE=kvrocks
-      - KVROCKS_URL=redis://moontv-kvrocks:6666
+      - KVROCKS_URL=redis://app-kvrocks:6666
     networks:
-      - moontv-network
+      - app-network
     depends_on:
-      - moontv-kvrocks
-  moontv-kvrocks:
+      - app-kvrocks
+  app-kvrocks:
     image: apache/kvrocks
-    container_name: moontv-kvrocks
+    container_name: app-kvrocks
     restart: unless-stopped
     volumes:
       - kvrocks-data:/var/lib/kvrocks
     networks:
-      - moontv-network
+      - app-network
 networks:
-  moontv-network:
+  app-network:
     driver: bridge
 volumes:
   kvrocks-data:
@@ -123,9 +123,9 @@ volumes:
 
 ```yml
 services:
-  moontv-core:
-    image: ghcr.io/moontechlab/lunatv:latest
-    container_name: moontv-core
+  app-core:
+    image: media-dashboard:latest
+    container_name: app-core
     restart: on-failure
     ports:
       - '3000:3000'
@@ -133,22 +133,22 @@ services:
       - USERNAME=admin
       - PASSWORD=admin_password
       - NEXT_PUBLIC_STORAGE_TYPE=redis
-      - REDIS_URL=redis://moontv-redis:6379
+      - REDIS_URL=redis://app-redis:6379
     networks:
-      - moontv-network
+      - app-network
     depends_on:
-      - moontv-redis
-  moontv-redis:
+      - app-redis
+  app-redis:
     image: redis:alpine
-    container_name: moontv-redis
+    container_name: app-redis
     restart: unless-stopped
     networks:
-      - moontv-network
+      - app-network
     # 请开启持久化，否则升级/重启后数据丢失
     volumes:
       - ./data:/data
 networks:
-  moontv-network:
+  app-network:
     driver: bridge
 ```
 
@@ -159,9 +159,9 @@ networks:
 3. 使用如下 docker compose
 ```yml
 services:
-  moontv-core:
-    image: ghcr.io/moontechlab/lunatv:latest
-    container_name: moontv-core
+  app-core:
+    image: media-dashboard:latest
+    container_name: app-core
     restart: on-failure
     ports:
       - '3000:3000'
@@ -195,14 +195,14 @@ Zeabur 是一站式云端部署平台，使用预构建的 Docker 镜像可以�
 
    > 💡 **重要提示**：持久化卷路径必须设置为 `/var/lib/kvrocks/db`（KVRocks 数据目录），这样配置文件保留在容器内，数据库文件持久化，重启后数据不会丢失！
 
-2. **添加 LunaTV 服务**
+2. **添加 MediaApp 服务**
    - 点击 "Add Service" > "Docker Images"
-   - 输入镜像名称：`ghcr.io/moontechlab/lunatv:latest`
+   - 输入镜像名称：`media-dashboard:latest`
    - 配置端口：`3000` (HTTP)
 
 3. **配置环境变量**
 
-   在 LunaTV 服务的环境变量中添加：
+   在 MediaApp 服务的环境变量中添加：
 
    ```env
    # 必填：管理员账号
@@ -215,8 +215,8 @@ Zeabur 是一站式云端部署平台，使用预构建的 Docker 镜像可以�
 
    # 可选：站点配置
    SITE_BASE=https://your-domain.zeabur.app
-   NEXT_PUBLIC_SITE_NAME=LunaTV Enhanced
-   ANNOUNCEMENT=欢迎使用 LunaTV Enhanced Edition
+   NEXT_PUBLIC_SITE_NAME=Media Dashboard
+   ANNOUNCEMENT=欢迎使用 Media Dashboard Edition
 
    # 可选：豆瓣代理配置（推荐）
    NEXT_PUBLIC_DOUBAN_PROXY_TYPE=cmliussss-cdn-tencent
@@ -234,12 +234,12 @@ Zeabur 是一站式云端部署平台，使用预构建的 Docker 镜像可以�
 
 #### 5. 设置访问域名（必须）
 
-   - 在 LunaTV 服务页面，点击 "Networking" 或 "网络" 标签
+   - 在 MediaApp 服务页面，点击 "Networking" 或 "网络" 标签
    - 点击 "Generate Domain" 生成 Zeabur 提供的免费域名（如 `xxx.zeabur.app`）
    - 或者绑定自定义域名：
      * 点击 "Add Domain" 添加你的域名
      * 按照提示配置 DNS CNAME 记录指向 Zeabur 提供的目标地址
-   - 设置完域名后即可通过域名访问 LunaTV
+   - 设置完域名后即可通过域名访问 MediaApp
 
 6. **绑定自定义域名（可选）**
    - 在服务设置中点击 "Domains"
@@ -253,7 +253,7 @@ Zeabur 是一站式云端部署平台，使用预构建的 Docker 镜像可以�
 **更新步骤：**
 
 1. **进入服务页面**
-   - 点击需要更新的服务（LunaTV 或 KVRocks）
+   - 点击需要更新的服务（MediaApp 或 KVRocks）
 
 2. **重启服务**
    - 点击 **"服务状态"** 页面，再点击 **"重启当前版本"** 按钮
@@ -308,11 +308,11 @@ custom_category 支持的自定义分类已知如下：
 
 也可输入如 "哈利波特" 效果等同于豆瓣搜索
 
-MoonTV 支持标准的苹果 CMS V10 API 格式。
+支持标准的 V10 API 协议格式。
 
 ## 订阅
 
-将完整的配置文件 base58 编码后提供 http 服务即为订阅链接，可在 MoonTV 后台/Helios 中使用。
+将完整的配置文件 base58 编码后提供 http 服务即为订阅链接，可在后台配置中使用。
 
 ## 自动更新
 
@@ -328,7 +328,7 @@ dockge/komodo 等 docker compose UI 也有自动更新功能
 | PASSWORD                            | 站长密码           | 任意字符串                       | 无默认，必填字段                                                                                                                     |
 | SITE_BASE                           | 站点 url              |       形如 https://example.com                  | 空                                                                                                                     |
 | NEXT_PUBLIC_SITE_NAME               | 站点名称                                     | 任意字符串                       | MoonTV                                                                                                                     |
-| ANNOUNCEMENT                        | 站点公告                                     | 任意字符串                       | 本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。 |
+| ANNOUNCEMENT                        | 站点公告                                     | 任意字符串                       | 本网站仅供个人学习与流媒体管理，所有数据由用户自行配置。 |
 | NEXT_PUBLIC_STORAGE_TYPE            | 播放记录/收藏的存储方式                      | redis、kvrocks、upstash | 无默认，必填字段                                                                                                               |
 | KVROCKS_URL                           | kvrocks 连接 url                               | 连接 url                         | 空                                                                                                                         |
 | REDIS_URL                           | redis 连接 url                               | 连接 url                         | 空                                                                                                                         |
@@ -361,7 +361,7 @@ NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE 选项解释：
 
 ## 客户端
 
-v100.0.0 以上版本可配合 [Selene](https://github.com/MoonTechLab/Selene) 使用，移动端体验更加友好，数据完全同步
+v100.0.0 以上版本可配合 [Selene](https://github.com) 使用，移动端体验更加友好，数据完全同步
 
 ## AndroidTV 使用
 
@@ -387,7 +387,7 @@ v100.0.0 以上版本可配合 [Selene](https://github.com/MoonTechLab/Selene) �
 - 请勿将部署的实例用于商业用途或公开服务
 - 如因公开分享导致的任何法律问题，用户需自行承担责任
 - 项目开发者不对用户的使用行为承担任何法律责任
-- 本项目不在中国大陆地区提供服务。如有该项目在向中国大陆地区提供服务，属个人行为。在该地区使用所产生的法律风险及责任，属于用户个人行为，与本项目无关，须自行承担全部责任。特此声明
+- 本项目仅供技术研究交流，请遵守当地法律法规。
 
 ## License
 
@@ -403,8 +403,8 @@ v100.0.0 以上版本可配合 [Selene](https://github.com/MoonTechLab/Selene) �
 - [HLS.js](https://github.com/video-dev/hls.js) — 实现 HLS 流媒体在浏览器中的播放支持。
 - [Zwei](https://github.com/bestzwei) — 提供获取豆瓣数据的 cors proxy
 - [CMLiussss](https://github.com/cmliu) — 提供豆瓣 CDN 服务
-- 感谢所有提供免费影视接口的站点。
+- 感谢开源社区的贡献与支持。
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=MoonTechLab/LunaTV&type=Date)](https://www.star-history.com/#MoonTechLab/LunaTV&Date)
+
